@@ -1,0 +1,19 @@
+{
+	"name": "md-transpiler",
+	"version": "1.0.0",
+	"main": "index.js",
+	"scripts": {
+		"start": "npx jiti src/index.ts",
+		"lint": "biome check .",
+		"lint:fix": "biome check . --write",
+		"test": "vitest run"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"vitest": "^3.1.4"
+	}
+}
