@@ -16,6 +16,7 @@ describe("placeholder-replacer", () => {
 			const template = "<div class='wrapper'>{content}</div>";
 			const context: PlaceholderContext = {
 				content: "<h1>Hello World</h1>",
+				escapeContent: false, // For this test, we want the HTML to be preserved
 			};
 
 			const result = replacePlaceholders(template, context);
@@ -84,6 +85,69 @@ describe("placeholder-replacer", () => {
 			const result = replacePlaceholders(template, context);
 
 			expect(result).toBe("<h1>My Post</h1><p>John Doe</p>");
+		});
+
+		it("should escape content by default for security", () => {
+			const template = "<div>{content}</div>";
+			const context: PlaceholderContext = {
+				content: '<script>alert("XSS")</script>',
+			};
+
+			const result = replacePlaceholders(template, context);
+
+			expect(result).toBe(
+				"<div>&lt;script&gt;alert(&quot;XSS&quot;)&lt;&#x2F;script&gt;</div>",
+			);
+		});
+
+		it("should allow opt-out of content escaping for trusted content", () => {
+			const template = "<div>{content}</div>";
+			const context: PlaceholderContext = {
+				content: "<strong>Trusted HTML</strong>",
+				escapeContent: false,
+			};
+
+			const result = replacePlaceholders(template, context);
+
+			expect(result).toBe("<div><strong>Trusted HTML</strong></div>");
+		});
+
+		it("should escape content when escapeContent is explicitly true", () => {
+			const template = "<div>{content}</div>";
+			const context: PlaceholderContext = {
+				content: '<img src="x" onerror="alert(1)">',
+				escapeContent: true,
+			};
+
+			const result = replacePlaceholders(template, context);
+
+			expect(result).toBe(
+				"<div>&lt;img src=&quot;x&quot; onerror=&quot;alert(1)&quot;&gt;</div>",
+			);
+		});
+
+		it("should handle multiple XSS vectors in content", () => {
+			const template = "<div>{content}</div>";
+			const maliciousContent = [
+				'<script>alert("xss")</script>',
+				'<img src="x" onerror="alert(1)">',
+				'javascript:alert("xss")',
+				'<iframe src="javascript:alert(1)"></iframe>',
+			].join("");
+
+			const context: PlaceholderContext = {
+				content: maliciousContent,
+			};
+
+			const result = replacePlaceholders(template, context);
+
+			// Should not contain any unescaped < > " ' characters
+			expect(result).not.toContain("<script");
+			expect(result).not.toContain("<img");
+			expect(result).not.toContain("<iframe");
+			expect(result).toContain("&lt;");
+			expect(result).toContain("&gt;");
+			expect(result).toContain("&quot;");
 		});
 	});
 

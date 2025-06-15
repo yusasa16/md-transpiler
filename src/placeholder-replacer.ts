@@ -9,6 +9,7 @@ export interface PlaceholderContext {
 	frontmatter?: Record<string, unknown>;
 	id?: string;
 	className?: string[];
+	escapeContent?: boolean; // default: true for security
 }
 
 /**
@@ -24,7 +25,12 @@ export function replacePlaceholders(
 	let result = template;
 
 	// Replace {content} with the actual element content
-	result = result.replace(/{content}/g, context.content);
+	// Escape by default for security, allow opt-out for trusted content
+	const safeContent =
+		context.escapeContent !== false
+			? escapeHtml(context.content)
+			: context.content;
+	result = result.replace(/{content}/g, safeContent);
 
 	// Replace {attributes} with stringified attributes
 	if (context.attributes) {
