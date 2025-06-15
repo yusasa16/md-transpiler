@@ -35,9 +35,9 @@ export function headings(options: TemplatePluginOptions = {}) {
 				const template = loadTemplate(profile, node.tagName, templateDir);
 
 				if (template) {
-					// Use template system
+					// Use template system - extract just the inner content, not the whole element
 					const context: PlaceholderContext = {
-						content: toHtml(node),
+						content: extractInnerContent(node),
 						attributes: node.properties,
 						id: extractId(node),
 						className: extractClassName(node),
@@ -74,14 +74,9 @@ export function headings(options: TemplatePluginOptions = {}) {
 				return node;
 			}
 
-			// 子要素がある場合は再帰的に処理
-			if (node.type === "element" && node.children) {
-				return {
-					...node,
-					children: node.children.map((child) =>
-						transformNode(child as RootContent),
-					) as ElementContent[],
-				};
+			// Non-heading elements are returned as-is (no recursive processing to avoid double-wrapping)
+			if (node.type === "element") {
+				return node;
 			}
 
 			return node;
@@ -271,7 +266,7 @@ function processElementWithTemplate(
 
 	if (template) {
 		const context: PlaceholderContext = {
-			content: toHtml(element),
+			content: extractInnerContent(element),
 			attributes: element.properties,
 			id: extractId(element),
 			className: extractClassName(element),
@@ -290,26 +285,29 @@ function processElementWithTemplate(
 		}
 	}
 
-	// For elements with children, recursively process children while keeping element structure
-	if (element.children && element.children.length > 0) {
-		return {
-			...element,
-			children: element.children.map((child) => {
-				if (child.type === "element") {
-					return processElementWithTemplate(
-						child,
-						profile,
-						templateDir,
-						fallbackToDefault,
-					) as ElementContent;
-				}
-				return child;
-			}),
-		};
-	}
+	// Return original element without recursive processing to avoid double-wrapping
 
 	// Return original element if no template or error
 	return element;
+}
+
+/**
+ * Extract just the inner content of an element (not the element itself)
+ */
+function extractInnerContent(element: Element): string {
+	if (element.children && element.children.length > 0) {
+		return element.children
+			.map((child) => {
+				if (child.type === "text") {
+					return child.value;
+				} else if (child.type === "element") {
+					return toHtml(child);
+				}
+				return "";
+			})
+			.join("");
+	}
+	return "";
 }
 
 /**
