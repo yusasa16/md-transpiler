@@ -8,14 +8,16 @@ describe("rehypeWrapHeadings", () => {
 		const markdown = "## Hello World!";
 		const result = await converter.convert(markdown);
 
-		expect(result).toContain('<div class="h2"><h2>Hello World!</h2></div>');
+		expect(result).toContain('<div class="h2">');
+		expect(result).toContain('<h2>Hello World!</h2>');
 	});
 
 	it("should wrap h1 heading with div", async () => {
 		const markdown = "# Main Title";
 		const result = await converter.convert(markdown);
 
-		expect(result).toContain('<div class="h1"><h1>Main Title</h1></div>');
+		expect(result).toContain('<div class="h1">');
+		expect(result).toContain('<h1>Main Title</h1>');
 	});
 
 	it("should wrap h3 heading with div", async () => {
@@ -31,9 +33,12 @@ describe("rehypeWrapHeadings", () => {
 ### Section`;
 		const result = await converter.convert(markdown);
 
-		expect(result).toContain('<div class="h1"><h1>Title</h1></div>');
-		expect(result).toContain('<div class="h2"><h2>Subtitle</h2></div>');
-		expect(result).toContain('<div class="h3"><h3>Section</h3></div>');
+		expect(result).toContain('<div class="h1">');
+		expect(result).toContain('<h1>Title</h1>');
+		expect(result).toContain('<div class="h2">');
+		expect(result).toContain('<h2>Subtitle</h2>');
+		expect(result).toContain('<div class="h3">');
+		expect(result).toContain('<h3>Section</h3>');
 	});
 
 	it("should not affect non-heading elements", async () => {

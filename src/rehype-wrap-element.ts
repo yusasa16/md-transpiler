@@ -35,9 +35,9 @@ export function headings(options: TemplatePluginOptions = {}) {
 				const template = loadTemplate(profile, node.tagName, templateDir);
 
 				if (template) {
-					// Use template system - extract just the inner content, not the whole element
+					// Use template system
 					const context: PlaceholderContext = {
-						content: extractInnerContent(node),
+						content: toHtml(node),
 						attributes: node.properties,
 						id: extractId(node),
 						className: extractClassName(node),
@@ -266,7 +266,7 @@ function processElementWithTemplate(
 
 	if (template) {
 		const context: PlaceholderContext = {
-			content: extractInnerContent(element),
+			content: toHtml(element),
 			attributes: element.properties,
 			id: extractId(element),
 			className: extractClassName(element),

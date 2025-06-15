@@ -171,10 +171,11 @@ describe("template-loader", () => {
 		});
 
 		it("should use default template directory", () => {
-			// This will return empty since there's no ./templates directory
+			// This will find templates in the default ./templates directory 
 			const templates = loadAllTemplates("landing-page");
 
-			expect(templates.size).toBe(0);
+			// We have landing-page templates, so this should find some
+			expect(templates.size).toBeGreaterThan(0);
 		});
 	});
 

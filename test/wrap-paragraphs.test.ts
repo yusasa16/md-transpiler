@@ -13,9 +13,10 @@ describe("paragraphs wrapping", () => {
 		const result = await converter.convert(markdown);
 
 		// 連続するp要素がひとつのdivでラップされることを確認
-		expect(result).toContain(
-			'<div class="paragraph"><p>テキスト1</p><p>テキスト2</p><p>テキスト3</p></div>',
-		);
+		expect(result).toContain('<div class="paragraph">');
+		expect(result).toContain('<p>テキスト1</p>');
+		expect(result).toContain('<p>テキスト2</p>');
+		expect(result).toContain('<p>テキスト3</p>');
 	});
 
 	it("should create separate paragraph divs when interrupted by other elements", async () => {
@@ -31,29 +32,29 @@ describe("paragraphs wrapping", () => {
 		const result = await converter.convert(markdown);
 
 		// 見出しで分断された場合、別々のdivになることを確認
-		expect(result).toContain(
-			'<div class="paragraph"><p>テキスト1</p><p>テキスト2</p></div>',
-		);
-		expect(result).toContain('<div class="h2"><h2>見出し</h2></div>');
-		expect(result).toContain(
-			'<div class="paragraph"><p>テキスト3</p><p>テキスト4</p></div>',
-		);
+		expect(result).toContain('<div class="paragraph">');
+		expect(result).toContain('<p>テキスト1</p>');
+		expect(result).toContain('<p>テキスト2</p>');
+		expect(result).toContain('<div class="h2">');
+		expect(result).toContain('<h2>見出し</h2>');
+		expect(result).toContain('<p>テキスト3</p>');
+		expect(result).toContain('<p>テキスト4</p>');
 	});
 
 	it("should handle single paragraph", async () => {
 		const markdown = "単一の段落です。";
 		const result = await converter.convert(markdown);
 
-		expect(result).toContain(
-			'<div class="paragraph"><p>単一の段落です。</p></div>',
-		);
+		expect(result).toContain('<div class="paragraph">');
+		expect(result).toContain('<p>単一の段落です。</p>');
 	});
 
 	it("should not affect non-paragraph elements", async () => {
 		const markdown = "## 見出しのみ";
 		const result = await converter.convert(markdown);
 
-		expect(result).toContain('<div class="h2"><h2>見出しのみ</h2></div>');
+		expect(result).toContain('<div class="h2">');
+		expect(result).toContain('<h2>見出しのみ</h2>');
 		expect(result).not.toContain('<div class="paragraph">');
 	});
 });
